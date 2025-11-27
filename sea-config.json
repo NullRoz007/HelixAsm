@@ -1,0 +1,5 @@
+{
+    "main": "./build/hlxc.bundle.cjs",
+    "output": "./build/hlxc-sea-prep.blob",
+    "disableExperimentalSEAWarning": true
+}
