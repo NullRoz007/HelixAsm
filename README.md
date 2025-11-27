@@ -36,7 +36,7 @@ For now, please see [asm.js](https://github.com/NullRoz007/HelixAsm/blob/main/sr
 Clone the repository:
 
     git clone https://github.com/NullRoz007/helixasm.git
-    cd helixassembler
+    cd helixasm
     npm install
 
   
