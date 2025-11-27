@@ -44,9 +44,11 @@ Clone the repository:
 ### Usage
 
 Compile a Helix Assembly source file
+
 	hlxc input.hlx output.bin
 
 If installed locally (not globally):
+
 	node src/cli.js input.hlx output.bin
 
   
