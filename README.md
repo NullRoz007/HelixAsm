@@ -49,7 +49,7 @@ Compile a Helix Assembly source file
 
 If installed locally (not globally):
 
-	node src/cli.js input.hlc output.bin
+	node src/cli.js input.hsm output.bin
 
   
 
@@ -79,5 +79,5 @@ The output binary is located in:
 > dist/hlxc
 
 Run it directly:
-	./dist/hlxc input.hlx output.bin
+	./dist/hlxc input.hsm output.bin
 
