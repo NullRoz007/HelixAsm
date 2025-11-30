@@ -20,6 +20,8 @@ For now, please see [asm.js](https://github.com/NullRoz007/HelixAsm/blob/main/sr
 
 ![CLI Showcase](https://github.com/NullRoz007/HelixAsm/blob/main/images/cli.png)
 
+See [HelixAsm](https://nullroz007.github.io/HelixWeb/) for a live example.
+
 ### Features
 - Tokenizer, parser, and code generator
 - CLI interface powered by citty and consola
