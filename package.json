@@ -6,23 +6,23 @@
   "author": "",
   "type": "commonjs",
   "bin": {
-    "hlxc": "./src/cli.js"
+    "hlxc": "./src/cli.mjs"
   },
   "scripts": {
-  "example-node": "node examples/example-node.js",
-  "test": "vitest run --reporter verbose",
-  "clean": "rm -rf ./build ./dist",
-  "prebundle": "npm run test && npm run clean",
-  "bundle": "mkdir -p ./build ./dist && esbuild ./src/cli.mjs --bundle --platform=node --format=cjs --outfile=./build/hlxc.bundle.cjs",
-  "prebuild": "npm run bundle && cp \"$(command -v node)\" ./dist/hlxc",
-  "build": "node --experimental-sea-config ./sea-config.json && npx postject ./dist/hlxc NODE_SEA_BLOB ./build/hlxc-sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2"
-},
+    "example-node": "node examples/example-node.js",
+    "test": "vitest run --reporter verbose",
+    "clean": "rm -rf ./build ./dist",
+    "prebundle": "npm run test && npm run clean",
+    "bundle": "mkdir -p ./build ./dist && esbuild ./src/cli.mjs --bundle --platform=node --format=cjs --outfile=./build/hlxc.bundle.cjs",
+    "prebuild": "npm run bundle && cp \"$(command -v node)\" ./dist/hlxc",
+    "build": "node --experimental-sea-config ./sea-config.json && npx postject ./dist/hlxc NODE_SEA_BLOB ./build/hlxc-sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2"
+  },
   "dependencies": {
     "citty": "^0.1.6",
-    "consola": "^3.4.2"
+    "consola": "^3.4.2",
+    "vitest": "^4.0.14"
   },
   "devDependencies": {
-    "esbuild": "^0.27.0",
-    "vitest": "^4.0.14"
+    "esbuild": "^0.27.0"
   }
 }

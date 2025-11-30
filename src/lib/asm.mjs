@@ -1,10 +1,10 @@
 export const TOKENS = [
   "INT",
-  "ADD", //expr, TODO
-  "SUB", //expr
+  "OP",
   "REG",
   "MEM",
   "EOF",
+  "EXPR",
   "KWD"
 ];
 

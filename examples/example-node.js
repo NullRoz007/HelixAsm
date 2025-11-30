@@ -3,7 +3,7 @@ const HlxParser = require('../src/lib/parser.mjs').Parser;
 
 //  label :register value
 const exampleSrc = `
-LD :7 0
+LD :7 @expr 1 + (2 * 4 + (5 - 1));
 LD :6 1
 AD :0 
 SR :0
@@ -30,6 +30,12 @@ const example = () => {
   for(let inst of parser.instructions) {
     console.log(inst.toString());
     console.log();
+  }
+
+  console.log('=== PARSED EXPRESSIONS ===');
+  for(let expr of hlxLexer.expressions) {
+    console.log('Expr:\t\t'+expr.expr);
+    console.log('Result:\t\t'+expr.value);
   }
 }
 

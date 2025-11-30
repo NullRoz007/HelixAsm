@@ -25,7 +25,11 @@ const lexStage = (src) => {
 
     consola.success('Tokenize');
     consola.info(`Tokens: ${tokens.length}`);
-    
+    consola.success(`Expressions: ${hlxLexer.expressions.length}`);
+    for(let expr of hlxLexer.expressions) {
+        consola.info(`Expr: ${expr.expr} = ${expr.value}`);
+    }
+
     return tokens;
 }
 
@@ -42,7 +46,7 @@ const parseStage = (tokens) => {
     
     consola.success('Parse');
     consola.info(`Instructions: ${parser.instructions.length}`);
-
+    
     return parser.instructions;
 }
 

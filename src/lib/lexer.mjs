@@ -1,8 +1,16 @@
 import { TOKENS, KEYWORDS } from "./asm.mjs";
+import { evaluateExpression } from "./expr.mjs";
+
+const MAX_EXPR_LENGTH = 99;
 
 const isInteger = (c) => {
   let x = parseInt(c);
   return !isNaN(x) && Number.isInteger(x);
+}
+
+const isValidMacroChar = (c) => {
+  let alpha = '@abcdefghijklmnopqrstuvwxyz';
+  return alpha.indexOf(c.toLowerCase()) != -1;
 }
 
 export class Token {
@@ -21,7 +29,7 @@ export class Lexer {
     this.tokens = {};
     this.keywords = KEYWORDS;
     this.pos = 0;
-
+    this.expressions = [];
     for(let t of TOKENS) this.tokens[t] = (v) => { return new Token(t, v) }
   }
 
@@ -40,6 +48,28 @@ export class Lexer {
     }
     
     return parseInt(result);
+  }
+
+  /**
+   * Gets an expression from the current position in the source
+   */
+  getExpression() {
+    let result = '';
+    let next_char = this.src[this.pos + 1];
+    let max = MAX_EXPR_LENGTH;
+    let n = 0;
+    while(next_char != ';') {
+      result += next_char;
+      this.advance();
+      next_char = this.src[this.pos + 1];
+
+      n++;
+      if(n > max) {
+        throw new Error("Expected ';' after expression");
+      }
+    }
+    
+    return result;
   }
 
   /**
@@ -80,7 +110,32 @@ export class Lexer {
       token = currentChar == ':' ? 
         this.tokens.REG(result) : 
         this.tokens.MEM(result);
-    } else {                                                //LABEL
+    } else if(currentChar == '@') {                         //MACRO
+      let macroType = '';
+
+      while(isValidMacroChar(currentChar)) {
+        currentChar = this.src[this.pos + 1];
+        if(currentChar == ' ') break;
+
+        macroType += currentChar;
+        this.advance();
+      }
+
+      switch (macroType) {
+        case 'expr':
+          let expression = this.getExpression();
+          let result = evaluateExpression(expression.trim());
+          
+          this.expressions.push({'expr': expression.trim(), 'value': result});
+          this.advance(2);
+          token = this.tokens.INT(result);
+          break;
+        default: 
+
+          break;
+      }
+
+    } else {                                                //KEYWORD
       let keyword = '';
       while(currentChar != ' ') {
         keyword += currentChar;
