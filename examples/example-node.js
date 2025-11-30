@@ -3,12 +3,14 @@ const HlxParser = require('../src/lib/parser.mjs').Parser;
 
 //  label :register value
 const exampleSrc = `
+@label start;
 LD :7 @expr 1 + (2 * 4 + (5 - 1));
 LD :6 1
 AD :0 
+@label start2;
 SR :0
 RI #1
-JZ 0
+JZ @label start2;
 `;
 
 const example = () => {

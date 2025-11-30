@@ -9,9 +9,16 @@ const padBinaryString = (bits, bStr) => {
   return '0b' + padded.slice(-bits);
 }
 
+class Label {
+  constructor(name, pos) {
+    this.name = name;
+    this.pos = pos;
+  }
+}
+
 export class Instruction {
-  constructor() {
-    this.line       = '';
+  constructor(line = '') {
+    this.line       = line;
     this.memAddr    = 0b000000;
     this.immValue   = 0b000000;
     this.immFlag    = 0b0;
@@ -75,6 +82,7 @@ export class Parser {
     this.tokens = tokens;
     this.pos = 0;
     this.instructions = [];
+    this.labels = [];
   }
   
   lookAhead(n = 1) {
@@ -123,12 +131,17 @@ export class Parser {
     let valueType = ahead[1].type;
 
     let line = `${token.value}: `;
+    let label = null;
 
     if(addressType == "REG") {
       inst.regAddr = address;
     } else if (addressType == "MEM") {
       inst.memAddr = address;
-    } else if (addressType != "INT"){
+
+    } else if (addressType == "LBL") {
+      label = this.getLabel(address);
+      if(!label) throw new Error(`Unknown label: ${address}`);
+    } else if (addressType != "INT") {
       throw new Error("Unsupported addressType!");
     }
 
@@ -139,6 +152,11 @@ export class Parser {
       this.advance();
     } else if (SPECIAL_INST_MAP[token.value] !== undefined) {
       line +=  `${addressType}(${address}) - S`;
+      
+      if(addressType == 'LBL' && label) {
+        address = label.pos;
+      }
+      
       inst.setRaw(address, SPECIAL_INST_MAP[token.value]);
       
       this.advance();
@@ -151,9 +169,13 @@ export class Parser {
     } else {
       throw new Error(`Unknown Keyword: '${token.value}'`);
     }
-    
+    console.log(inst.memAddr);
     inst.line = line;
     return inst;
+  }
+
+  getLabel(name) {
+    return this.labels.filter((l) => l.name == name)[0];
   }
 
   getNextToken() {
@@ -163,6 +185,7 @@ export class Parser {
   parse() {
     let nextToken = new Token();
     let stop = false;
+    let line = 0;
     while(nextToken.type != 'EOF' && !stop)  {
       nextToken = this.getNextToken();
 
@@ -170,6 +193,15 @@ export class Parser {
         case 'KWD':
           let inst = this.parseKeyword(nextToken);
           this.instructions.push(inst);
+          this.advance();
+          line++;
+          break;
+        case 'LBL':
+          let label = nextToken.value;
+          if(!this.getLabel(label)) {=
+            this.labels.push(new Label(label, line));
+          }
+
           this.advance();
           break;
         case 'EOF':

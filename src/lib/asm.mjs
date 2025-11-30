@@ -4,8 +4,8 @@ export const TOKENS = [
   "REG",
   "MEM",
   "EOF",
-  "EXPR",
-  "KWD"
+  "KWD",
+  "LBL",
 ];
 
 export const KEYWORDS = [

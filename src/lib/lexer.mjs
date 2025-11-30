@@ -30,6 +30,7 @@ export class Lexer {
     this.keywords = KEYWORDS;
     this.pos = 0;
     this.expressions = [];
+    this.labels = [];
     for(let t of TOKENS) this.tokens[t] = (v) => { return new Token(t, v) }
   }
 
@@ -70,6 +71,10 @@ export class Lexer {
     }
     
     return result;
+  }
+
+  getLabel(name) {
+    return this.labels.map((l) => l.name == name)[0] || null;
   }
 
   /**
@@ -129,6 +134,11 @@ export class Lexer {
           this.expressions.push({'expr': expression.trim(), 'value': result});
           this.advance(2);
           token = this.tokens.INT(result);
+          break;
+        case 'label': 
+          let label = this.getExpression().trim();
+          token = this.tokens.LBL(label);
+          this.advance(2);
           break;
         default: 
 
