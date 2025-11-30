@@ -1,6 +1,3 @@
-import { writeFile } from "node:fs";
-
-
 const DEFAULT_HEADER = {
     IO_MAP: [],
     SCREEN_X: 0b1101110,
@@ -29,6 +26,6 @@ export class CodeGen {
         }
 
         let outJson = JSON.stringify(this.output);
-        await writeFile(outFile, outJson, () => {});
+        return outJson;
     }
 }

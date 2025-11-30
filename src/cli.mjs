@@ -8,7 +8,7 @@ import { Lexer } from './lib/lexer.mjs';
 import { Parser } from './lib/parser.mjs';
 import { CodeGen, FORMATS } from './lib/gen.mjs';
 
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 
 const lexStage = (src) => {
     let hlxLexer;
@@ -54,7 +54,8 @@ const genStage = async (instructions, outFile) => {
     let codeGen;
     try {
         codeGen = new CodeGen(instructions);
-        await codeGen.build(outFile);
+        const outJson = await codeGen.build(outFile);
+        await writeFile(outFile, outJson, () => {});
     } catch (ex) {
         consola.fatal(`Failed to build`);
         consola.info(ex);
