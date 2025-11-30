@@ -150,7 +150,7 @@ export class Parser {
       inst.aluCtrl = ALU_MAP[token.value]
       
       this.advance();
-    } else if (SPECIAL_INST_MAP[token.value] !== undefined) {
+    } else if (SPECIAL_INST_MAP[token.value] !== undefined) { //special instructions require us to overwrite the opcode
       line +=  `${addressType}(${address}) - S`;
       
       if(addressType == 'LBL' && label) {
@@ -169,7 +169,7 @@ export class Parser {
     } else {
       throw new Error(`Unknown Keyword: '${token.value}'`);
     }
-    console.log(inst.memAddr);
+
     inst.line = line;
     return inst;
   }
@@ -198,7 +198,7 @@ export class Parser {
           break;
         case 'LBL':
           let label = nextToken.value;
-          if(!this.getLabel(label)) {=
+          if(!this.getLabel(label)) {
             this.labels.push(new Label(label, line));
           }
 

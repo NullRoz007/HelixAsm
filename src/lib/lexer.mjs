@@ -1,7 +1,7 @@
 import { TOKENS, KEYWORDS } from "./asm.mjs";
 import { evaluateExpression } from "./expr.mjs";
 
-const MAX_EXPR_LENGTH = 99;
+const MAX_EXPR_LENGTH = 50;
 
 const isInteger = (c) => {
   let x = parseInt(c);
@@ -30,7 +30,6 @@ export class Lexer {
     this.keywords = KEYWORDS;
     this.pos = 0;
     this.expressions = [];
-    this.labels = [];
     for(let t of TOKENS) this.tokens[t] = (v) => { return new Token(t, v) }
   }
 
@@ -52,21 +51,21 @@ export class Lexer {
   }
 
   /**
-   * Gets an expression from the current position in the source
+   * Gets a macro (@macro-type) from the current position in the source
    */
-  getExpression() {
+  getMacro() {
     let result = '';
     let next_char = this.src[this.pos + 1];
     let max = MAX_EXPR_LENGTH;
     let n = 0;
-    while(next_char != ';') {
+    while(next_char != ';' ) {
       result += next_char;
       this.advance();
       next_char = this.src[this.pos + 1];
 
       n++;
       if(n > max) {
-        throw new Error("Expected ';' after expression");
+        throw new Error(`Max expression length (${MAX_EXPR_LENGTH}) exceeded. Did you forget a ';'?\n${result}`);
       }
     }
     
@@ -126,24 +125,22 @@ export class Lexer {
         this.advance();
       }
 
+      const macro = this.getMacro().trim();
+
       switch (macroType) {
         case 'expr':
-          let expression = this.getExpression();
-          let result = evaluateExpression(expression.trim());
-          
-          this.expressions.push({'expr': expression.trim(), 'value': result});
-          this.advance(2);
+          let result = evaluateExpression(macro);
+          this.expressions.push({'expr': macro, 'value': result});
           token = this.tokens.INT(result);
           break;
         case 'label': 
-          let label = this.getExpression().trim();
-          token = this.tokens.LBL(label);
-          this.advance(2);
+          token = this.tokens.LBL(macro);
           break;
         default: 
-
-          break;
+          throw new Error(`Unknown Macro Type: ${macroType}`);
       }
+
+      this.advance(2);
 
     } else {                                                //KEYWORD
       let keyword = '';

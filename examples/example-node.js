@@ -39,6 +39,12 @@ const example = () => {
     console.log('Expr:\t\t'+expr.expr);
     console.log('Result:\t\t'+expr.value);
   }
+
+  console.log('\n=== PARSED LABELS ===');
+  for(let label of parser.labels) {
+    console.log('Label:\t\t'+label.name);
+    console.log('Address:\t'+label.pos);
+  }
 }
 
 example();
