@@ -25,7 +25,7 @@ export class CodeGen {
             this.output.lines.push(inst.toString());
         }
 
-        let outJson = JSON.stringify(this.output);
+        let outJson = JSON.stringify(this.output, null, 2);
         return outJson;
     }
 }
