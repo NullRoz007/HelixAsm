@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const VERSION = "1.0.0";
+const VERSION = "1.1.0";
 
 import { defineCommand, runMain } from "citty";
 import { consola, createConsola } from "consola";
