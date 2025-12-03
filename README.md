@@ -20,10 +20,11 @@ For now, please see [asm.js](https://github.com/NullRoz007/HelixAsm/blob/main/sr
 
 ![CLI Showcase](https://github.com/NullRoz007/HelixAsm/blob/main/images/cli.png)
 
-See [HelixAsm](https://nullroz007.github.io/HelixWeb/) for a live example.
+See [HelixWeb](https://nullroz007.github.io/HelixWeb/) for a live example.
 
 ### Features
 - Tokenizer, parser, and code generator
+- Output compiled HSM assembly into a game ready SpongeV2 Schematic
 - CLI interface powered by citty and consola
 - Bundled with esbuild
 - Can be compiled into a standalone executable
@@ -47,7 +48,7 @@ Clone the repository:
 
 Compile a Helix Assembly source file
 
-	hlxc input.hlc output.json
+	hlxc input.hsm output --json --schem
 
 If installed locally (not globally):
 
@@ -66,6 +67,12 @@ Bundle the CLI
 Creates a bundled CommonJS file at build/hlxc.bundle.cjs:
 	npm run bundle
 
+
+Generate a Base ROM
+
+Dumps a JSON string that can be saved and imported into HLXC
+	./src/cli.js input.schem --schemToJson
+	
 ### Build Standalone Executable (Node SEA)
 This process:
 - Runs tests

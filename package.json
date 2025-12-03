@@ -20,6 +20,11 @@
   "dependencies": {
     "citty": "^0.1.6",
     "consola": "^3.4.2",
+    "debug": "^4.4.3",
+    "prismarine-block": "^1.22.0",
+    "prismarine-registry": "^1.11.0",
+    "prismarine-schematic": "^1.2.3",
+    "vec3": "^0.1.10",
     "vitest": "^4.0.14"
   },
   "devDependencies": {

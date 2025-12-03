@@ -7,7 +7,7 @@ const DEFAULT_HEADER = {
     STACK_DEPTH: 16
 };
 
-export const FORMATS = ["json", "bin"];
+export const FORMATS = ["json", "schem"];
 
 export class CodeGen {
     constructor(instructions) {

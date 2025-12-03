@@ -1,5 +1,7 @@
+const { SchemBuilder } = require('../src/lib/schem.mjs');
 const HlxLexer = require('../src/lib/lexer.mjs').Lexer;
 const HlxParser = require('../src/lib/parser.mjs').Parser;
+const fs = require('fs').promises
 
 //  label :register value
 const exampleSrc = `
@@ -13,7 +15,7 @@ RI #1
 JZ @label start2;
 `;
 
-const example = () => {
+const example = async () => {
   const hlxLexer = new HlxLexer(exampleSrc);
   let tokens = hlxLexer.tokenize();
 
@@ -45,6 +47,12 @@ const example = () => {
     console.log('Label:\t\t'+label.name);
     console.log('Address:\t'+label.pos);
   }
+
+  console.log("=== BUILD ROM SCHEM ===");
+  let schemBuilder = new SchemBuilder(parser.instructions);
+  let schem = await schemBuilder.buildROMSchematic();
+
+  await fs.writeFile('out-oprand.schem', await schem.write());
 }
 
 example();
