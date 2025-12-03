@@ -61,18 +61,21 @@ If installed locally (not globally):
 Run tests
 
 	npm test
+
 	
 Bundle the CLI
 
 Creates a bundled CommonJS file at build/hlxc.bundle.cjs:
+
 	npm run bundle
 
 
 Generate a Base ROM
 
 Dumps a JSON string that can be saved and imported into HLXC
+
 	./src/cli.js input.schem --schemToJson
-	
+
 ### Build Standalone Executable (Node SEA)
 This process:
 - Runs tests
