@@ -4,7 +4,7 @@ A command-line compiler for the Helix Assembly Language.
 
 The Helix Assembly Language is an assembly language designed to create flashable ROM's for my 8bit Minecraft Computer. 
 
-This tool reads .hlm source files, tokenizes them, parses instructions, and generates output schematics for loading into the Helix Computer.
+This tool reads .hlm source files, tokenizes them, parses instructions, and generates output schematics for loading into the in-game ROM Flasher
 
 hlxc is built using:
 
