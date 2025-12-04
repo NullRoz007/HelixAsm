@@ -53,18 +53,16 @@ export class SchemBuilder {
         const romSchem = await Schematic.fromJSON(baseRomJSON);
         
         for(let iidx = 0; iidx < this.instructions.length; iidx++) {
-            const instruction = this.instructions[iidx].build();;
+            const instruction = this.instructions[iidx].build();
             let oprand = instruction[0];
             let opcode = instruction[1];
 
-            //console.log(`Writing instruction ${iidx} (opcode: ${opcode}, oprand: ${oprand})`);
             for(let i = 0; i < opcode.length - 2; i++) {
                 if(opcode.charAt(i + 2) == '0') {
                     let pos = opcodeBitIdxToOffsetVec3(iidx, i);
                     let block = romSchem.getBlock(pos);
                     if(block.name !== 'redstone_block') throw new Error(`(opcode) Unexpected block at ${pos}`);
 
-              //    console.log(`(opcode) setting bit ${i} at (${pos.x}, ${pos.y}, ${pos.z}) to air.`);
                     romSchem.setBlock(pos, air);
                     this.stats.blocksSet++;
                 }
@@ -74,7 +72,6 @@ export class SchemBuilder {
                     let block = romSchem.getBlock(pos);
                     if(block.name !== 'redstone_block') throw new Error(`(oprand) Unexpected block at ${pos}`);
 
-                //  console.log(`(oprand) setting bit ${i} at (${pos.x}, ${pos.y}, ${pos.z}) to air.`);
                     romSchem.setBlock(pos, air);
                     this.stats.blocksSet++;
                 }
