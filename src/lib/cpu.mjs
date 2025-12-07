@@ -17,11 +17,11 @@ export const SPECIAL_INST_MAP = {
   "PO": 0,
   "JZ": 0b01110011,
   "JP": 0b11111111,
-  "RT": 0,
+  "RT": 0b11011111,
   "RI": 0b11101111,
   "SL": 0b00011000,
   "SR": 0b00010100,
-  "CL": 0
+  "CL": 0b11100011
 }
 
 export class HelixScreen {

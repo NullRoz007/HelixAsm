@@ -6,9 +6,12 @@ export const TOKENS = [
   "EOF",
   "KWD",
   "LBL",
+  "ESR",
+  "ROUTE"
 ];
 
 export const KEYWORDS = [
+  "CL", //call subroutine
   "LD", //load
   "PP", //push
   "PO", //pop

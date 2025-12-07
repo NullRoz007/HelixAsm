@@ -1,6 +1,8 @@
 const { SchemBuilder } = require('../src/lib/schem.mjs');
 const HlxLexer = require('../src/lib/lexer.mjs').Lexer;
 const HlxParser = require('../src/lib/parser.mjs').Parser;
+const HlxCodeGen = require('../src/lib/gen.mjs').CodeGen;
+
 const fs = require('fs').promises
 
 //  label :register value
@@ -16,12 +18,16 @@ JZ @label start2;
 `;
 
 const exampleSubRoutines = `
+@label start;
 LD :0 1
-CL @label sub1
 
-@label sub1
+@start sub1;
 LD :0 2
 RT
+@end;
+
+CL @route sub1;
+JP @label start;
 `
 
 const example = async () => {
@@ -29,22 +35,42 @@ const example = async () => {
   let tokens = hlxLexer.tokenize();
 
   console.log("=== SOURCE CODE ===");
-  console.log(exampleSrc.trim());
+  console.log(exampleSubRoutines.trim());
   console.log();
   
   console.log("=== COMPUTED TOKENS ===");
   console.log(tokens);
   console.log();
 
-  const parser = new HlxParser(tokens);
-  parser.parse();
+  console.log("=== SUBROUTINES ===");
+  console.log(hlxLexer.subroutines);
 
+  console.log("=== PARSED SUBROUTINES ===");
+  let subroutines = {};
+  for(let sr of Object.keys(hlxLexer.subroutines)) {
+    let tokens = hlxLexer.subroutines[sr]; 
+    let subParser = new HlxParser(tokens);
+    subParser.parse();
+    
+    for(let inst of subParser.instructions) {
+      console.log(inst.toString());
+      console.log();
+    }
+
+    subroutines[sr] = subParser.instructions;
+  }
+
+  const parser = new HlxParser(tokens, subroutines);
+  parser.parse();
+  parser.mapSubroutines();
+  
   console.log("=== PARSED INSTRUCTIONS ===");
   for(let inst of parser.instructions) {
     console.log(inst.toString());
     console.log();
   }
 
+  
   console.log('=== PARSED EXPRESSIONS ===');
   for(let expr of hlxLexer.expressions) {
     console.log('Expr:\t\t'+expr.expr);

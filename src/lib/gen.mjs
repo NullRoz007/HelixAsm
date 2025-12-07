@@ -28,4 +28,11 @@ export class CodeGen {
         let outJson = JSON.stringify(this.output, null, 2);
         return outJson;
     }
+
+    mapSubroutines(parser) {
+        let usedSubs = [];
+        for(inst of parser.instructions) {
+            console.log(inst);
+        }
+    }
 }

@@ -16,9 +16,18 @@ class Label {
   }
 }
 
+class Subroutine {
+  constructor(name, pos, instructions) {
+    this.name = name;
+    this.pos = pos;
+    this.instructions = instructions;
+  }
+}
+
 export class Instruction {
   constructor(line = '') {
     this.line       = line;
+    this.srName     = null;
     this.memAddr    = 0b000000;
     this.immValue   = 0b000000;
     this.immFlag    = 0b0;
@@ -45,17 +54,22 @@ export class Instruction {
   }
 
   build() {
-    let resultHigh = (
-      (!this.immFlag ? this.memAddr : this.immValue) << 1
-    ) | this.immFlag;
-
     let resultLow = 0;
 
     resultLow |= (this.aluCtrl << 5);
     resultLow |= (this.regAddr << 2); 
     resultLow |= (this.writeFlag << 1);
     resultLow |= this.clearFlag;
+    
+    if(this.srName) { //if we need a subroutine, we must return the raw memAddr, rather than the calculated resultHigh
+      return [padBinaryString(8, this.memAddr.toString(2)), padBinaryString(8, resultLow.toString(2))];
+    }
 
+
+    let resultHigh = (
+      (!this.immFlag ? this.memAddr : this.immValue) << 1
+    ) | this.immFlag;
+    
     return [padBinaryString(8, resultHigh.toString(2)), padBinaryString(8, resultLow.toString(2))];
   }
 
@@ -78,11 +92,13 @@ export class Instruction {
 }
 
 export class Parser {
-  constructor(tokens) {
+  constructor(tokens, subroutines) {
     this.tokens = tokens;
     this.pos = 0;
     this.instructions = [];
     this.labels = [];
+    this.subroutines = subroutines;
+    this.loadedSubroutes = [];
   }
   
   lookAhead(n = 1) {
@@ -140,12 +156,15 @@ export class Parser {
       inst.regAddr = address;
     } else if (addressType == "MEM") {
       inst.memAddr = address;
-
     } else if (addressType == "LBL") {
       label = this.getLabel(address);
       if(!label) throw new Error(`Unknown label: ${address}`);
+    } else if (addressType == "ROUTE") {
+      if(!this.getSubroutine(address)) throw new Error(`Unknown subroutine: ${address}`);
+
+      inst.srName = address;
     } else if (addressType != "INT") {
-      throw new Error("Unsupported addressType!");
+      throw new Error(`Unsupported addressType: ${addressType}`);
     }
 
     if(ALU_MAP[token.value] !== undefined) {
@@ -181,6 +200,10 @@ export class Parser {
     return this.labels.filter((l) => l.name == name)[0];
   }
 
+  getSubroutine(name) {
+    return this.subroutines[name];
+  }
+
   getNextToken() {
     return this.tokens[this.pos];
   }
@@ -189,8 +212,34 @@ export class Parser {
     let nextToken = new Token();
     let stop = false;
     let line = 0;
-    while(nextToken.type != 'EOF' && !stop)  {
+    while(nextToken.type != 'EOF'&& !stop)  {
       nextToken = this.getNextToken();
+      
+      if(nextToken === undefined) break;
+
+      if(nextToken.type == 'KWD'){
+        if(nextToken.value == 'RT') {
+          let inst = new Instruction();
+          inst.setRaw(0, SPECIAL_INST_MAP['RT']);
+          inst.line = 'RT: PC <- CALLSTACK.pop()';
+          
+          this.instructions.push(inst);
+          this.advance();
+          line++;
+
+          continue;
+        }
+
+        if(nextToken.value == "CL") {
+          let inst = this.parseKeyword(nextToken);
+          this.instructions.push(inst);
+          this.advance();
+          line++;
+
+          continue;
+        }
+
+      }
 
       switch (nextToken.type) {
         case 'KWD':
@@ -212,6 +261,34 @@ export class Parser {
         default:
           throw new Error(`Unknown Token Type: ${nextToken.type}`);
       }
+    }
+  }
+
+  mapSubroutines() {
+    let topLevelSize = this.instructions.length;
+    let pos = topLevelSize;
+
+    const subroutineClasses = [];
+    for(let name in this.subroutines) {
+      let sr = new Subroutine(name, pos, this.subroutines[name]);
+      pos += sr.instructions.length;
+      subroutineClasses.push(sr);
+    }
+
+    for(let inst of this.instructions) {
+      if(inst.srName !== null) {
+        let sr = subroutineClasses.filter((sc) => sc.name == inst.srName)[0];
+        inst.memAddr = sr.pos + 1; // account for the JP past the subroutine table
+      }
+    }
+
+    let srJumpInst = new Instruction();
+    srJumpInst.line = "=== START SR_TABLE ===";
+    srJumpInst.setRaw(pos, SPECIAL_INST_MAP['JP']);
+    this.instructions.push(srJumpInst);
+    
+    for(let sr of subroutineClasses) {
+      this.instructions.push(...sr.instructions);
     }
   }
 }
