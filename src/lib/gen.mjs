@@ -21,18 +21,12 @@ export class CodeGen {
 
     async build(outFile) {
         for(let inst of this.instructions) {
+            console.log(inst);
             this.output.instructions.push(inst.build());
             this.output.lines.push(inst.toString());
         }
 
         let outJson = JSON.stringify(this.output, null, 2);
         return outJson;
-    }
-
-    mapSubroutines(parser) {
-        let usedSubs = [];
-        for(inst of parser.instructions) {
-            console.log(inst);
-        }
     }
 }

@@ -1,7 +1,10 @@
-LD :7 0
-LD :6 @expr 1 + (2 * 5);
-AD :0 
-SR :0
-RI #1
-JZ 0
+@label start;
+LD :0 1
 
+@start sub1;
+LD :0 2
+RT
+@end;
+
+CL @route sub1;
+JP @label start;
