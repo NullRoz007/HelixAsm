@@ -115,7 +115,7 @@ export class Parser {
     } else if(valueType == "MEM" ){
       inst.immFlag = 0;
       inst.memAddr = value;
-    } else
+    } else {
       throw new Error(`Unsupported valueType!"
         value:\t${value}
         type: \t${valueType}

@@ -15,8 +15,17 @@ RI #1
 JZ @label start2;
 `;
 
+const exampleSubRoutines = `
+LD :0 1
+CL @label sub1
+
+@label sub1
+LD :0 2
+RT
+`
+
 const example = async () => {
-  const hlxLexer = new HlxLexer(exampleSrc);
+  const hlxLexer = new HlxLexer(exampleSubRoutines);
   let tokens = hlxLexer.tokenize();
 
   console.log("=== SOURCE CODE ===");
@@ -47,12 +56,6 @@ const example = async () => {
     console.log('Label:\t\t'+label.name);
     console.log('Address:\t'+label.pos);
   }
-
-  console.log("=== BUILD ROM SCHEM ===");
-  let schemBuilder = new SchemBuilder(parser.instructions);
-  let schem = await schemBuilder.buildROMSchematic();
-
-  await fs.writeFile('out-oprand.schem', await schem.write());
 }
 
 example();

@@ -1,3 +1,5 @@
+export const STACK_DEPTH = 16;
+
 export const ALU_MAP = {
   "AD": 0b001, 
   "SB": 0b010,
@@ -18,7 +20,8 @@ export const SPECIAL_INST_MAP = {
   "RT": 0,
   "RI": 0b11101111,
   "SL": 0b00011000,
-  "SR": 0b00010100
+  "SR": 0b00010100,
+  "CL": 0
 }
 
 export class HelixScreen {
