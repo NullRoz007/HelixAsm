@@ -112,10 +112,13 @@ export class Parser {
     } else if(valueType == "REG") {
       inst.immFlag = 0;
       inst.regAddr = value;
-    } else {
+    } else if(valueType == "MEM" ){
+      inst.immFlag = 0;
+      inst.memAddr = value;
+    } else
       throw new Error(`Unsupported valueType!"
         value:\t${value}
-        type: \t${type}
+        type: \t${valueType}
       `);
     }
   }
