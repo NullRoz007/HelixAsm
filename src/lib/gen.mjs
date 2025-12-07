@@ -21,7 +21,6 @@ export class CodeGen {
 
     async build(outFile) {
         for(let inst of this.instructions) {
-            console.log(inst);
             this.output.instructions.push(inst.build());
             this.output.lines.push(inst.toString());
         }

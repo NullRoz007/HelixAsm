@@ -1,8 +1,14 @@
 @label start;
 LD :0 1
 
+@start sub2;
+LD :0 3
+RT
+@end;
+
 @start sub1;
 LD :0 2
+CL @route sub2;
 RT
 @end;
 

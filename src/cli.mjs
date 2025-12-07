@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-const VERSION = "1.1.0";
+const VERSION = "1.3.0";
 
 import { defineCommand, runMain } from "citty";
 import { consola, createConsola } from "consola";
@@ -39,14 +39,12 @@ const parseStage = (tokens, subroutines) => {
     let parser;
 
     try {
-        console.log(subroutines);
         let parsedSubroutines = {};
         for(let sr of Object.keys(subroutines)) {
             let tokens = subroutines[sr]; 
-            let subParser = new Parser(tokens);
+            let subParser = new Parser(tokens, parsedSubroutines);
             subParser.parse();
     
-
             parsedSubroutines[sr] = subParser.instructions;
         }
 
