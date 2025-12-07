@@ -238,7 +238,6 @@ export class Parser {
 
           continue;
         }
-
       }
 
       switch (nextToken.type) {
@@ -275,13 +274,6 @@ export class Parser {
       subroutineClasses.push(sr);
     }
 
-    for(let inst of this.instructions) {
-      if(inst.srName !== null) {
-        let sr = subroutineClasses.filter((sc) => sc.name == inst.srName)[0];
-        inst.memAddr = sr.pos + 1; // account for the JP past the subroutine table
-      }
-    }
-
     let srJumpInst = new Instruction();
     srJumpInst.line = "=== START SR_TABLE ===";
     srJumpInst.setRaw(pos, SPECIAL_INST_MAP['JP']);
@@ -289,6 +281,13 @@ export class Parser {
     
     for(let sr of subroutineClasses) {
       this.instructions.push(...sr.instructions);
+    }
+
+    for(let inst of this.instructions) {
+      if(inst.srName !== null) {
+        let sr = subroutineClasses.filter((sc) => sc.name == inst.srName)[0];
+        inst.memAddr = sr.pos + 1; // account for the JP past the subroutine table
+      }
     }
   }
 }

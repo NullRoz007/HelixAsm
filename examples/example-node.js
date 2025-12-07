@@ -21,8 +21,14 @@ const exampleSubRoutines = `
 @label start;
 LD :0 1
 
+@start sub2;
+LD :0 3
+RT
+@end;
+
 @start sub1;
 LD :0 2
+CL @route sub2;
 RT
 @end;
 
@@ -49,7 +55,7 @@ const example = async () => {
   let subroutines = {};
   for(let sr of Object.keys(hlxLexer.subroutines)) {
     let tokens = hlxLexer.subroutines[sr]; 
-    let subParser = new HlxParser(tokens);
+    let subParser = new HlxParser(tokens, subroutines);
     subParser.parse();
     
     for(let inst of subParser.instructions) {
