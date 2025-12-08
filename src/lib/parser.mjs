@@ -26,15 +26,16 @@ class Subroutine {
 
 export class Instruction {
   constructor(line = '') {
-    this.line       = line;
-    this.srName     = null;
-    this.memAddr    = 0b000000;
-    this.immValue   = 0b000000;
-    this.immFlag    = 0b0;
-    this.aluCtrl    = 0b000;
-    this.regAddr    = 0b000;
-    this.writeFlag  = 0b0;
-    this.clearFlag  = 0b0;
+    this.line         = line;
+    this.srName       = null;
+    this.srTableFlag  = false;
+    this.memAddr      = 0b000000;
+    this.immValue     = 0b000000;
+    this.immFlag      = 0b0;
+    this.aluCtrl      = 0b000;
+    this.regAddr      = 0b000;
+    this.writeFlag    = 0b0;
+    this.clearFlag    = 0b0;
   }
 
   setRaw(hi, lo) {
@@ -61,7 +62,7 @@ export class Instruction {
     resultLow |= (this.writeFlag << 1);
     resultLow |= this.clearFlag;
     
-    if(this.srName) { //if we need a subroutine, we must return the raw memAddr, rather than the calculated resultHigh
+    if(this.srTableFlag || this.srName) { //if we need a subroutine, we must return the raw memAddr, rather than the calculated resultHigh
       return [padBinaryString(8, this.memAddr.toString(2)), padBinaryString(8, resultLow.toString(2))];
     }
 
@@ -276,7 +277,8 @@ export class Parser {
 
     let srJumpInst = new Instruction();
     srJumpInst.line = "=== START SR_TABLE ===";
-    srJumpInst.setRaw(pos, SPECIAL_INST_MAP['JP']);
+    srJumpInst.srTableFlag = true;
+    srJumpInst.setRaw(pos + 1, SPECIAL_INST_MAP['JP']);
     this.instructions.push(srJumpInst);
     
     for(let sr of subroutineClasses) {
