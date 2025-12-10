@@ -209,6 +209,7 @@ export class Lexer {
       if(nextToken.type != null) computedTokens.push(nextToken);
     }
 
+    this.tokens = computedTokens;
     return computedTokens;
   }
 }
