@@ -29,13 +29,11 @@ export class Instruction {
     this.line         = line;
     this.srName       = null;
     this.srTableFlag  = false;
-    this.memAddr      = 0b000000;
-    this.immValue     = 0b000000;
-    this.immFlag      = 0b0;
+    this.immValue     = 0b0000000;
     this.aluCtrl      = 0b000;
     this.regAddr      = 0b000;
     this.writeFlag    = 0b0;
-    this.clearFlag    = 0b0;
+    this.memFlag      = 0b0;
   }
 
   setRaw(hi, lo) {
@@ -45,13 +43,10 @@ export class Instruction {
     let loStr = padBinaryString(8, lo.toString(2));
 
     this.immValue   = hi;
-    this.memAddr    = hi;
-    this.immFlag    = hi & 1;
-
     this.aluCtrl    = (lo >> 5) & 0b111;
     this.regAddr    = (lo >> 2) & 0b111;
     this.writeFlag  = (lo >> 1) & 0b1;
-    this.clearFlag  = lo & 0b1;
+    this.memFlag  = lo & 0b1;
   }
 
   build() {
@@ -60,16 +55,14 @@ export class Instruction {
     resultLow |= (this.aluCtrl << 5);
     resultLow |= (this.regAddr << 2); 
     resultLow |= (this.writeFlag << 1);
-    resultLow |= this.clearFlag;
+    resultLow |= this.memFlag;
     
-    if(this.srTableFlag || this.srName) { //if we need a subroutine, we must return the raw memAddr, rather than the calculated resultHigh
-      return [padBinaryString(8, this.memAddr.toString(2)), padBinaryString(8, resultLow.toString(2))];
+    if(this.srTableFlag || this.srName) { //if we need a subroutine, we must return the raw immValue, rather than the calculated resultHigh
+      return [padBinaryString(8, this.immValue.toString(2)), padBinaryString(8, resultLow.toString(2))];
     }
 
 
-    let resultHigh = (
-      (!this.immFlag ? this.memAddr : this.immValue) << 1
-    ) | this.immFlag;
+    let resultHigh = this.immValue;
     
     return [padBinaryString(8, resultHigh.toString(2)), padBinaryString(8, resultLow.toString(2))];
   }
@@ -77,15 +70,15 @@ export class Instruction {
   toString() {
     let raw = this.build(); 
     let result = `Line:\t\t${this.line}\nInstruction:\t`;
-    let paddedImm = padBinaryString(7, this.immValue.toString(2));
-    let paddedMemAddr = padBinaryString(7, this.memAddr.toString(2));
+    let paddedImm = padBinaryString(8, this.immValue.toString(2));
+    let paddedMemAddr = padBinaryString(8, this.immValue.toString(2));
     let paddedAluCtrl = padBinaryString(3, this.aluCtrl.toString(2));
     let paddedRegAddr = padBinaryString(3, this.regAddr.toString(2));
 
-    result += (this.immFlag) ? `Imm(${paddedImm})` : `MemAddr(${paddedMemAddr})`;   
+    result += (!this.memFlag) ? `Imm(${paddedImm})` : `Addr(${paddedMemAddr})`;   
     result += `, AluCtrl(${paddedAluCtrl})`;
     result += `, RegAddr(${paddedRegAddr})`;
-    result += `, Flags(imm = 0b${this.immFlag}, wr = 0b${this.writeFlag}, cl = 0b${this.clearFlag})`;
+    result += `, Flags(mem = 0b${this.memFlag}, wr = 0b${this.writeFlag})`;
     result += `\nRaw:\t\t[${raw[0]}, ${raw[1]}]`;
 
     return result;
@@ -123,15 +116,15 @@ export class Parser {
 
   parseLoadKeyword(inst, value, valueType) {
     if(valueType == "INT") {
-      inst.immFlag = 1;
+      inst.memFlag = 0;
       inst.aluCtrl = ALU_MAP.OVERRIDE; //CPU requires us to set ALU Ctrl to 0b111 to load immediate values...
       inst.immValue = value;
     } else if(valueType == "REG") {
-      inst.immFlag = 0;
+      inst.memFlag = 1;
       inst.regAddr = value;
     } else if(valueType == "MEM" ){
-      inst.immFlag = 0;
-      inst.memAddr = value;
+      inst.memFlag = 0;
+      inst.immValue = value;
     } else {
       throw new Error(`Unsupported valueType!"
         value:\t${value}
@@ -156,7 +149,7 @@ export class Parser {
     if(addressType == "REG") {
       inst.regAddr = address;
     } else if (addressType == "MEM") {
-      inst.memAddr = address;
+      inst.immValue = address;
     } else if (addressType == "LBL") {
       label = this.getLabel(address);
       if(!label) throw new Error(`Unknown label: ${address}`);
@@ -288,7 +281,7 @@ export class Parser {
     for(let inst of this.instructions) {
       if(inst.srName !== null) {
         let sr = subroutineClasses.filter((sc) => sc.name == inst.srName)[0];
-        inst.memAddr = sr.pos + 1; // account for the JP past the subroutine table
+        inst.immValue = sr.pos + 1; // account for the JP past the subroutine table
       }
     }
   }

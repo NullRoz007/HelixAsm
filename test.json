@@ -1,0 +1,59 @@
+{
+  "header": {
+    "IO_MAP": [],
+    "SCREEN_X": 110,
+    "SCREEN_Y": 96,
+    "SCREEN_CTRL": 108,
+    "STACK_PTR": 0,
+    "STACK_DEPTH": 16
+  },
+  "instructions": [
+    [
+      "0b00000011",
+      "0b11100010"
+    ],
+    [
+      "0b00000110",
+      "0b11100011"
+    ],
+    [
+      "0b00000000",
+      "0b11111111"
+    ],
+    [
+      "0b00001001",
+      "0b11111111"
+    ],
+    [
+      "0b00000111",
+      "0b11100010"
+    ],
+    [
+      "0b00000000",
+      "0b11011111"
+    ],
+    [
+      "0b00000101",
+      "0b11100010"
+    ],
+    [
+      "0b00000100",
+      "0b11100011"
+    ],
+    [
+      "0b00000000",
+      "0b11011111"
+    ]
+  ],
+  "lines": [
+    "Line:\t\tLD: REG(0) <- INT(1)\nInstruction:\tImm(0b0000001), AluCtrl(0b111), RegAddr(0b000), Flags(imm = 0b1, wr = 0b1, cl = 0b0)\nRaw:\t\t[0b00000011, 0b11100010]",
+    "Line:\t\tCL: ROUTE(sub1) - S\nInstruction:\tMemAddr(0b0000110), AluCtrl(0b111), RegAddr(0b000), Flags(imm = 0b0, wr = 0b1, cl = 0b1)\nRaw:\t\t[0b00000110, 0b11100011]",
+    "Line:\t\tJP: LBL(start) - S\nInstruction:\tMemAddr(0b0000000), AluCtrl(0b111), RegAddr(0b111), Flags(imm = 0b0, wr = 0b1, cl = 0b1)\nRaw:\t\t[0b00000000, 0b11111111]",
+    "Line:\t\t=== START SR_TABLE ===\nInstruction:\tImm(0b0001001), AluCtrl(0b111), RegAddr(0b111), Flags(imm = 0b1, wr = 0b1, cl = 0b1)\nRaw:\t\t[0b00001001, 0b11111111]",
+    "Line:\t\tLD: REG(0) <- INT(3)\nInstruction:\tImm(0b0000011), AluCtrl(0b111), RegAddr(0b000), Flags(imm = 0b1, wr = 0b1, cl = 0b0)\nRaw:\t\t[0b00000111, 0b11100010]",
+    "Line:\t\tRT: PC <- CALLSTACK.pop()\nInstruction:\tMemAddr(0b0000000), AluCtrl(0b110), RegAddr(0b111), Flags(imm = 0b0, wr = 0b1, cl = 0b1)\nRaw:\t\t[0b00000000, 0b11011111]",
+    "Line:\t\tLD: REG(0) <- INT(2)\nInstruction:\tImm(0b0000010), AluCtrl(0b111), RegAddr(0b000), Flags(imm = 0b1, wr = 0b1, cl = 0b0)\nRaw:\t\t[0b00000101, 0b11100010]",
+    "Line:\t\tCL: ROUTE(sub2) - S\nInstruction:\tMemAddr(0b0000100), AluCtrl(0b111), RegAddr(0b000), Flags(imm = 0b0, wr = 0b1, cl = 0b1)\nRaw:\t\t[0b00000100, 0b11100011]",
+    "Line:\t\tRT: PC <- CALLSTACK.pop()\nInstruction:\tMemAddr(0b0000000), AluCtrl(0b110), RegAddr(0b111), Flags(imm = 0b0, wr = 0b1, cl = 0b1)\nRaw:\t\t[0b00000000, 0b11011111]"
+  ]
+}

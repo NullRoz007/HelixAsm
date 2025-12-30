@@ -19,21 +19,7 @@ JZ @label start2;
 
 const exampleSubRoutines = `
 @label start;
-LD :0 1
-
-@start sub2;
-LD :0 3
-RT
-@end;
-
-@start sub1;
-LD :0 2
-CL @route sub2;
-RT
-@end;
-
-CL @route sub1;
-JP @label start;
+LD :0 7
 `
 
 const example = async () => {
@@ -76,7 +62,6 @@ const example = async () => {
     console.log();
   }
 
-  
   console.log('=== PARSED EXPRESSIONS ===');
   for(let expr of hlxLexer.expressions) {
     console.log('Expr:\t\t'+expr.expr);
