@@ -1,0 +1,44 @@
+@label reset;
+LD :0 0
+LD :1 0
+LD #1 :1
+LD :2 0
+LD #2 :2
+
+@label start;
+
+@start y_loop;
+  
+@end
+
+@label x_loop;
+  CL @route fractal;
+  LD :6 #1
+  LD :7 1
+  AD :0
+  LD #1 :0
+
+  LD :7 31
+  SB :0
+  JZ @route y_loop;
+
+@start draw;
+  LD :1 #1
+  LD :2 #2
+  LD :3 3
+
+  LD #64 :1
+  LD #64 :2
+  LD #66 :3
+  JP @label start;
+RT
+@end
+
+@start fractal;
+  LD :6 #1
+  LD :7 #2
+  AN :0
+
+  JZ @route draw;
+RT
+@end;

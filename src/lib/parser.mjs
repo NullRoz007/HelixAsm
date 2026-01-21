@@ -164,7 +164,7 @@ export class Parser {
     if(ALU_MAP[token.value] !== undefined) {
       line += `${addressType}(${address})`;
       inst.aluCtrl = ALU_MAP[token.value]
-      
+      inst.writeFlag = 1;
       this.advance();
     } else if (SPECIAL_INST_MAP[token.value] !== undefined) { //special instructions require us to overwrite the opcode
       line +=  `${addressType}(${address}) - S`;

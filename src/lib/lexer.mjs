@@ -9,7 +9,7 @@ const isInteger = (c) => {
 }
 
 const isValidMacroChar = (c) => {
-  let alpha = '@abcdefghijklmnopqrstuvwxyz';
+  let alpha = '@abcdefghijklmnopqrstuvwxyz_';
   return alpha.indexOf(c.toLowerCase()) != -1;
 }
 
@@ -31,6 +31,8 @@ export class Lexer {
     this.pos = 0;
     this.expressions = [];
     this.subroutines = {};
+    this.definitions = {};
+
     for(let t of TOKENS) this.tokens[t] = (v) => { return new Token(t, v) }
   }
 
@@ -92,6 +94,20 @@ export class Lexer {
 
   getLabel(name) {
     return this.labels.map((l) => l.name == name)[0] || null;
+  }
+
+  evaluateDefine(macro) {
+    const parts = macro.split('=');
+    if(parts.length != 2) throw new Error(`Invalid definition: ${macro}`);
+
+    const name = parts[0].trim();
+    const raw_value = parts[1].trim();
+
+    let definitionLexer = new Lexer(raw_value);
+    let tokens = definitionLexer.tokenize();
+    tokens.pop();
+    
+    return { name, tokens };
   }
 
   /**
@@ -166,7 +182,15 @@ export class Lexer {
         case 'end':
           token = this.tokens.ESR(null);
           return token;
-          
+          break;
+        case 'define':
+          let { name, tokens } = this.evaluateDefine(macro);
+          if(tokens.length != 1) {
+            throw new Error(`Definitions may only contain a single reg, mem addr, or imm value: ${macro}`);
+          }
+
+          this.definitions[name] = tokens;
+          break;
         default: 
           throw new Error(`Unknown Macro Type: ${macroType}`);
       }
@@ -175,19 +199,20 @@ export class Lexer {
 
     } else {                                                //KEYWORD
       let keyword = '';
-      while(currentChar != ' ') {
+      while(currentChar != ' ' && currentChar != '\n') {
         keyword += currentChar;
 
         if(this.pos + 1 >= this.src.length) break;
         currentChar = this.src[this.pos + 1];
         
         if(keyword == 'RT') break;
-
         this.advance();
       }
 
       if(this.keywords.indexOf(keyword) != -1) {
         token = this.tokens.KWD(keyword);
+      } else if(this.definitions[keyword] !== undefined) {
+        token = this.definitions[keyword][0];
       } else {
         token = null;
         throw new Error(`Unknown Keyword: ${keyword}`);
@@ -204,9 +229,12 @@ export class Lexer {
 
     while (nextToken.type != "EOF") {
       nextToken = this.getNextToken();
+      
       if(!nextToken) break;
-
-      if(nextToken.type != null) computedTokens.push(nextToken);
+     
+      if(nextToken.type != null) { 
+        computedTokens.push(nextToken);
+      }
     }
 
     this.tokens = computedTokens;

@@ -18,12 +18,107 @@ JZ @label start2;
 `;
 
 const exampleSubRoutines = `
-@label start;
-LD :0 7
+@define CHAR_BUF = #16;
+@define H = 39;
+@define E = 36;
+@define L = 43;
+@define I = 40;
+@define X = 55;
+
+@define VIDEO_X = #64;
+@define VIDEO_Y = #65;
+@define VIDEO_CTRL = #66;
+@define VIDEO_DRAW = 3;
+@define VIDEO_CLEAR = 1;
+
+@label reset;
+LD :1 31
+LD VIDEO_X :1
+LD :0 0
+LD VIDEO_Y    :0
+LD VIDEO_CTRL :0
+
+@label bootmsg;
+LD :0 H
+LD CHAR_BUF :0
+LD :0 E
+LD CHAR_BUF :0
+LD :0 L
+LD CHAR_BUF :0
+LD :0 I
+LD CHAR_BUF :0
+LD :0 X
+LD CHAR_BUF :0
+
+@label blink;
+LD :1 VIDEO_DRAW
+LD VIDEO_CTRL :1
+LD :1 VIDEO_CLEAR
+LD VIDEO_CTRL :1
+JP @label blink;
 `
 
+const test = `
+@define VIDEO_X = #64;
+@define VIDEO_Y = #65;
+@define VIDEO_CTRL = #66;
+@define VIDEO_DRAW = 3;
+@define VIDEO_CLEAR = 1;
+
+@label start;
+LD :0 VIDEO_CLEAR
+LD VIDEO_CTRL :0
+
+LD :6 0
+LD :7 0
+AN :0
+JZ @route draw;
+
+LD :6 1
+LD :7 0
+AN :0
+JZ @route draw;
+
+LD :6 0
+LD :7 1
+AN :0
+JZ @route draw;
+
+LD :6 1
+LD :7 1
+AN :0
+JZ @route draw;
+
+LD :6 2
+LD :7 0
+AN :0
+JZ @route draw;
+
+LD :6 0
+LD :7 2
+AN :0
+JZ @route draw;
+
+LD :6 2
+LD :7 2
+AN :0
+JZ @route draw;
+
+@label end;
+JP @label end;
+
+@start draw;
+LD :0 :6
+LD VIDEO_X :0
+LD :0 :7
+LD VIDEO_Y :0
+LD :0 VIDEO_DRAW
+LD VIDEO_CTRL :0
+RT
+@end;`;
+
 const example = async () => {
-  const hlxLexer = new HlxLexer(exampleSubRoutines);
+  const hlxLexer = new HlxLexer(test);
   let tokens = hlxLexer.tokenize();
 
   console.log("=== SOURCE CODE ===");
