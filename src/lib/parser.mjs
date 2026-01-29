@@ -4,7 +4,7 @@ import { ALU_MAP, SPECIAL_INST_MAP } from "./cpu.mjs";
 const padBinaryString = (bits, bStr) => {
   let padded = "";
   for(let i = 0; i < bits; i++) padded += "0";
-  padded += bStr;0b01110011
+  padded += bStr;
 
   return '0b' + padded.slice(-bits);
 }
@@ -29,11 +29,14 @@ export class Instruction {
     this.line         = line;
     this.srName       = null;
     this.srTableFlag  = false;
+    
     this.immValue     = 0b0000000;
     this.aluCtrl      = 0b000;
     this.regAddr      = 0b000;
     this.writeFlag    = 0b0;
     this.memFlag      = 0b0;
+
+    this.unresolvedLabel = null;
   }
 
   setRaw(hi, lo) {
@@ -134,9 +137,12 @@ export class Parser {
   }
   
   parseKeyword(token) {
+    console.log('parsing:');
+    console.log(token);
+    
     let inst = new Instruction();
     let ahead = this.lookAhead(2);
-
+    
     let address = ahead[0].value;
     let addressType = ahead[0].type;
 
@@ -151,8 +157,7 @@ export class Parser {
     } else if (addressType == "MEM") {
       inst.immValue = address;
     } else if (addressType == "LBL") {
-      label = this.getLabel(address);
-      if(!label) throw new Error(`Unknown label: ${address}`);
+      inst.unresolvedLabel = address;
     } else if (addressType == "ROUTE") {
       if(!this.getSubroutine(address)) throw new Error(`Unknown subroutine: ${address}`);
 
@@ -169,9 +174,11 @@ export class Parser {
     } else if (SPECIAL_INST_MAP[token.value] !== undefined) { //special instructions require us to overwrite the opcode
       line +=  `${addressType}(${address}) - S`;
       
-      if(addressType == 'LBL' && label) {
-        address = label.pos;
+      if (addressType === 'LBL') {
+        inst.unresolvedLabel = address;
+        address = 0;
       }
+      
       
       inst.setRaw(address, SPECIAL_INST_MAP[token.value]);
       
@@ -187,6 +194,7 @@ export class Parser {
     }
 
     inst.line = line;
+    console.log();
     return inst;
   }
 
@@ -244,7 +252,7 @@ export class Parser {
         case 'LBL':
           let label = nextToken.value;
           if(!this.getLabel(label)) {
-            this.labels.push(new Label(label, line));
+            this.labels.push(new Label(label, this.instructions.length));
           }
 
           this.advance();
@@ -253,6 +261,16 @@ export class Parser {
           break;
         default:
           throw new Error(`Unknown Token Type: ${nextToken.type}`);
+      }
+    }
+  }
+
+  resolveLabels() {
+    for (let inst of this.instructions) {
+      if (inst.unresolvedLabel) {
+        const label = this.getLabel(inst.unresolvedLabel);
+        if (!label) throw new Error(`Unknown label: ${inst.unresolvedLabel}`);
+        inst.immValue = label.pos;
       }
     }
   }

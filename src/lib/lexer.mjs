@@ -26,6 +26,7 @@ export class Lexer {
    */
   constructor(source) {
     this.src = source.trim();
+    this.tokenInjectionStream = [];
     this.tokens = {};
     this.keywords = KEYWORDS;
     this.pos = 0;
@@ -42,14 +43,10 @@ export class Lexer {
   */
   getAddress() {
     let result = '';
-    let next_char = this.src[this.pos + 1];
-
-    while(isInteger(next_char)) {
-      result += next_char;
+    while (isInteger(this.peek())) {
+      result += this.peek();
       this.advance();
-      next_char = this.src[this.pos + 1];
     }
-    
     return parseInt(result);
   }
 
@@ -58,38 +55,32 @@ export class Lexer {
    */
   getMacro() {
     let result = '';
-    let next_char = this.src[this.pos + 1];
-    let max = MAX_EXPR_LENGTH;
     let n = 0;
     
-    while(next_char != ';') {
-      result += next_char;
+    while(this.peek() != ';') {
+      result += this.peek();
       this.advance();
-      next_char = this.src[this.pos + 1];
-
-      n++;
-      if(n > max) {
+      if(++n > MAX_EXPR_LENGTH) {
         throw new Error(`Max expression length (${MAX_EXPR_LENGTH}) exceeded. Did you forget a ';'?\n${result}`);
       }
-
- 
     }
     
-    return result;
+    this.advance();
+    return result.trim();
   }
 
   getSubroutine() {
-    let nextToken = new Token();
-    let computedTokens = [];
+    const computedTokens = [];
 
-    while (nextToken.type != "ESR") {
-      nextToken = this.getNextToken();
-      if(!nextToken) break;
-
+    while(true) {
+      const nextToken = this.getNextToken();
+      if(nextToken == null) continue;
+      if(nextToken.type == 'ESR') break;
+      if(nextToken.type == 'EOF') break;
       if(nextToken.type != null) computedTokens.push(nextToken);
     }
 
-    return computedTokens.splice(0, computedTokens.length - 1);
+    return computedTokens;
   }
 
   getLabel(name) {
@@ -118,123 +109,139 @@ export class Lexer {
     this.pos += n;
   }
 
+  peek() {
+    return this.src[this.pos];
+  }
+
+  skipWhitespace() {
+    while (this.peek() === ' ' || this.peek() === '\n' || this.peek() === '\t') {
+      this.advance();
+    }
+  }
+
   /**
    * Gets the next available Token from the source
    * @returns {Token}
    */
   getNextToken() {
-    let token = new Token();
-    let currentChar = this.src[this.pos];
-
-    if (currentChar == ' ' || currentChar == '\n') {
-      this.advance();
-      return token;
+    if (this.tokenInjectionStream.length > 0) {
+      return this.tokenInjectionStream.shift();
     }
+    
+    this.skipWhitespace();
+
 
     if(this.pos > this.src.length - 1) {                    //EOF
-      token = this.tokens.EOF(null);
-    } else if(isInteger(currentChar)) {                     //INTEGER
+      return this.tokens.EOF(null);
+    }
+
+    const currentChar = this.peek();
+
+    if(isInteger(currentChar)) {                     //INTEGER
       let result = '';
 
-      while(isInteger(currentChar)) {
-        result += currentChar;
-        currentChar = this.src[this.pos + 1];
+      while(isInteger(this.peek())) {
+        result += this.peek();
         this.advance();
       }
 
-      token = this.tokens.INT(parseInt(result));
-    } else if(currentChar == ':' || currentChar == '#') {   //REGISTER || MEM
-      let result = this.getAddress();
-      token = currentChar == ':' ? 
-        this.tokens.REG(result) : 
-        this.tokens.MEM(result);
-    } else if(currentChar == '@') {                         //MACRO
+      return this.tokens.INT(parseInt(result));
+    } 
+    
+    if(currentChar == ':' || currentChar == '#') {   //REGISTER || MEM
+      this.advance();
+      const addr = this.getAddress();
+      return currentChar === ':' ? 
+        this.tokens.REG(addr) : 
+        this.tokens.MEM(addr);
+    } 
+    
+    if(currentChar == '@') {                         //MACRO
+      this.advance();
+
       let macroType = '';
-
-      while(isValidMacroChar(currentChar)) {
-        currentChar = this.src[this.pos + 1];
-        if(currentChar == ' ' || currentChar == ';') break;
-
-        macroType += currentChar;
+      while(isValidMacroChar(this.peek())) {
+        macroType += this.peek();
         this.advance();
       }
 
-      const macro = this.getMacro().trim();
+      this.skipWhitespace();
+      const macro = this.getMacro();
+      
+      console.log('@'+macroType + " "+macro);
 
       switch (macroType) {
         case 'expr':
           let result = evaluateExpression(macro);
           this.expressions.push({'expr': macro, 'value': result});
-          token = this.tokens.INT(result);
-          break;
+          return this.tokens.INT(result);          
         case 'label': 
-          token = this.tokens.LBL(macro);
-          break;
+          return this.tokens.LBL(macro);
         case 'start':
-          this.advance(2);
-
           let subTokens = this.getSubroutine();
           this.subroutines[macro] = subTokens;
-          break;
+          console.log(subTokens);
+          return null;
         case 'route':
-          token = this.tokens.ROUTE(macro);
-          break;
+          return this.tokens.ROUTE(macro);
         case 'end':
-          token = this.tokens.ESR(null);
-          return token;
-          break;
+          return this.tokens.ESR(null);
+        case 'repeat':
+          if(!isInteger(macro)) throw new Error(`Invalid repeat value: ${macro}`);
+          
+          let repeat = parseInt(macro);
+          let repTokens = this.getSubroutine();
+          let expanded = [];
+          for(let i = 0; i < repeat; i++) {
+            for(let t of repTokens) {
+              expanded.push(new Token(t.type, t.value));    
+            }
+          }
+
+          this.tokenInjectionStream.unshift(...expanded);
+          return null;
         case 'define':
           let { name, tokens } = this.evaluateDefine(macro);
           if(tokens.length != 1) {
+            console.log(tokens);
             throw new Error(`Definitions may only contain a single reg, mem addr, or imm value: ${macro}`);
           }
 
           this.definitions[name] = tokens;
-          break;
+          return null;
         default: 
           throw new Error(`Unknown Macro Type: ${macroType}`);
       }
 
-      this.advance(2);
-
-    } else {                                                //KEYWORD
-      let keyword = '';
-      while(currentChar != ' ' && currentChar != '\n') {
-        keyword += currentChar;
-
-        if(this.pos + 1 >= this.src.length) break;
-        currentChar = this.src[this.pos + 1];
-        
-        if(keyword == 'RT') break;
-        this.advance();
-      }
-
-      if(this.keywords.indexOf(keyword) != -1) {
-        token = this.tokens.KWD(keyword);
-      } else if(this.definitions[keyword] !== undefined) {
-        token = this.definitions[keyword][0];
-      } else {
-        token = null;
-        throw new Error(`Unknown Keyword: ${keyword}`);
-      } 
+    }
+    
+    //KEYWORD
+    let keyword = '';
+    while(this.peek() && this.peek() != ' ' && this.peek() != '\n') {
+      keyword += this.peek();
+      this.advance();
     }
 
-    this.advance();
-    return token;
+    if(this.keywords.indexOf(keyword) != -1) {
+      return this.tokens.KWD(keyword);
+    } 
+    
+    if(this.definitions[keyword] !== undefined) {
+      return this.definitions[keyword][0];
+    }
+    
+    throw new Error(`Unknown Keyword: ${keyword}`);
   }
 
   tokenize() {
-    let nextToken = new Token();
-    let computedTokens = [];
+    const computedTokens = [];
 
-    while (nextToken.type != "EOF") {
-      nextToken = this.getNextToken();
-      
-      if(!nextToken) break;
-     
-      if(nextToken.type != null) { 
-        computedTokens.push(nextToken);
-      }
+    while(true) {
+      const nextToken = this.getNextToken();
+      if(nextToken == null) continue;
+      computedTokens.push(nextToken);
+
+      if(nextToken.type == 'EOF') break;
     }
 
     this.tokens = computedTokens;

@@ -32,10 +32,10 @@ const lexStage = (src) => {
         consola.info(`Expr: ${expr.expr} = ${expr.value}`);
     }
 
-    return { 'tokens': tokens, 'subroutines': hlxLexer.subroutines };
+    return { 'tokens': tokens, 'subroutines': hlxLexer.subroutines, 'labels': hlxLexer.labels };
 }
 
-const parseStage = (tokens, subroutines) => {
+const parseStage = (tokens, labels, subroutines) => {
     let parser;
 
     try {
@@ -44,13 +44,14 @@ const parseStage = (tokens, subroutines) => {
             let tokens = subroutines[sr]; 
             let subParser = new Parser(tokens, parsedSubroutines);
             subParser.parse();
-    
+            subParser.resolveLabels();
             parsedSubroutines[sr] = subParser.instructions;
         }
 
         parser = new Parser(tokens, parsedSubroutines);
         parser.parse();
         parser.mapSubroutines();
+        parser.resolveLabels();
     } catch (ex) {
         consola.fatal(`Error during parsing`);
         consola.info(ex);
@@ -114,7 +115,7 @@ const compileSrc = async (srcFile, outFile, formats) => {
 
     let instructions = [];
     if(lexResult.tokens.length > 0) {
-        instructions = parseStage(lexResult.tokens, lexResult.subroutines);
+        instructions = parseStage(lexResult.tokens, lexResult.labels, lexResult.subroutines);
 
         if(formats.indexOf('json') != -1) await genStage(instructions, outFile + '.json');
         if(formats.indexOf('schem') != -1) await schemStage(instructions, "Base32", outFile + '.schem');
