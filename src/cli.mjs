@@ -1,14 +1,12 @@
 #!/usr/bin/env node
-const VERSION = "1.3.0";
+const VERSION = "1.3.1";
 
 import { defineCommand, runMain } from "citty";
 import { consola, createConsola } from "consola";
-
-import { Lexer } from './lib/lexer.mjs';
-import { Parser } from './lib/parser.mjs';
-import { CodeGen, FORMATS } from './lib/gen.mjs';
-import { SchemBuilder } from "./lib/schem.mjs";
-
+import { Lexer } from './lib/lexer.js';
+import { Parser } from './lib/parser.js';
+import { CodeGen, FORMATS } from './lib/gen.js';
+import { SchemBuilder } from "./lib/schem.js";
 import { readFile, writeFile } from 'node:fs/promises';
 
 const lexStage = (src) => {

@@ -18,6 +18,7 @@
     "build": "node --experimental-sea-config ./sea-config.json && npx postject ./dist/hlxc NODE_SEA_BLOB ./build/hlxc-sea-prep.blob --sentinel-fuse NODE_SEA_FUSE_fce680ab2cc467b6e072b8b5df1996b2"
   },
   "dependencies": {
+    "@types/node": "^25.1.0",
     "citty": "^0.1.6",
     "consola": "^3.4.2",
     "debug": "^4.4.3",

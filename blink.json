@@ -1,0 +1,184 @@
+{
+  "header": {
+    "IO_MAP": [],
+    "SCREEN_X": 110,
+    "SCREEN_Y": 96,
+    "SCREEN_CTRL": 108,
+    "STACK_PTR": 0,
+    "STACK_DEPTH": 16
+  },
+  "instructions": [
+    [
+      "0b00000000",
+      "0b11100110"
+    ],
+    [
+      "0b01000000",
+      "0b00000111"
+    ],
+    [
+      "0b00000000",
+      "0b11100010"
+    ],
+    [
+      "0b01000001",
+      "0b00000111"
+    ],
+    [
+      "0b01000010",
+      "0b00000111"
+    ],
+    [
+      "0b00001011",
+      "0b11100011"
+    ],
+    [
+      "0b00010110",
+      "0b11100011"
+    ],
+    [
+      "0b00000110",
+      "0b11111111"
+    ],
+    [
+      "0b00100010",
+      "0b11111111"
+    ],
+    [
+      "0b00010000",
+      "0b00000011"
+    ],
+    [
+      "0b00000000",
+      "0b11011111"
+    ],
+    [
+      "0b00100111",
+      "0b11100010"
+    ],
+    [
+      "0b00001001",
+      "0b11100011"
+    ],
+    [
+      "0b00100100",
+      "0b11100010"
+    ],
+    [
+      "0b00001001",
+      "0b11100011"
+    ],
+    [
+      "0b00101011",
+      "0b11100010"
+    ],
+    [
+      "0b00001001",
+      "0b11100011"
+    ],
+    [
+      "0b00101000",
+      "0b11100010"
+    ],
+    [
+      "0b00001001",
+      "0b11100011"
+    ],
+    [
+      "0b00110111",
+      "0b11100010"
+    ],
+    [
+      "0b00001001",
+      "0b11100011"
+    ],
+    [
+      "0b00000000",
+      "0b11011111"
+    ],
+    [
+      "0b00000001",
+      "0b11111110"
+    ],
+    [
+      "0b01000000",
+      "0b00011010"
+    ],
+    [
+      "0b00000000",
+      "0b00100010"
+    ],
+    [
+      "0b01000000",
+      "0b00000011"
+    ],
+    [
+      "0b01000001",
+      "0b00011010"
+    ],
+    [
+      "0b00000000",
+      "0b00100010"
+    ],
+    [
+      "0b01000001",
+      "0b00000011"
+    ],
+    [
+      "0b00000011",
+      "0b11100110"
+    ],
+    [
+      "0b01000010",
+      "0b00000111"
+    ],
+    [
+      "0b00000000",
+      "0b11100110"
+    ],
+    [
+      "0b01000010",
+      "0b00000111"
+    ],
+    [
+      "0b00000000",
+      "0b11011111"
+    ]
+  ],
+  "lines": [
+    "Line:\t\tLD: REG(1) <- INT(0)\nInstruction:\tImm(0b00000000), AluCtrl(0b111), RegAddr(0b001), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b00000000, 0b11100110]",
+    "Line:\t\tLD: MEM(64) <- REG(1)\nInstruction:\tAddr(0b01000000), AluCtrl(0b000), RegAddr(0b001), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b01000000, 0b00000111]",
+    "Line:\t\tLD: REG(0) <- INT(0)\nInstruction:\tImm(0b00000000), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b00000000, 0b11100010]",
+    "Line:\t\tLD: MEM(65) <- REG(1)\nInstruction:\tAddr(0b01000001), AluCtrl(0b000), RegAddr(0b001), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b01000001, 0b00000111]",
+    "Line:\t\tLD: MEM(66) <- REG(1)\nInstruction:\tAddr(0b01000010), AluCtrl(0b000), RegAddr(0b001), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b01000010, 0b00000111]",
+    "Line:\t\tCL: ROUTE(bootmsg) - S\nInstruction:\tAddr(0b00001011), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00001011, 0b11100011]",
+    "Line:\t\tCL: ROUTE(blink) - S\nInstruction:\tAddr(0b00010110), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00010110, 0b11100011]",
+    "Line:\t\tJP: LBL(loop) - S\nInstruction:\tAddr(0b00000110), AluCtrl(0b111), RegAddr(0b111), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00000110, 0b11111111]",
+    "Line:\t\t=== START SR_TABLE ===\nInstruction:\tAddr(0b00100010), AluCtrl(0b111), RegAddr(0b111), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00100010, 0b11111111]",
+    "Line:\t\tLD: MEM(16) <- REG(0)\nInstruction:\tAddr(0b00010000), AluCtrl(0b000), RegAddr(0b000), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00010000, 0b00000011]",
+    "Line:\t\tRT: PC <- CALLSTACK.pop()\nInstruction:\tAddr(0b00000000), AluCtrl(0b110), RegAddr(0b111), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00000000, 0b11011111]",
+    "Line:\t\tLD: REG(0) <- INT(39)\nInstruction:\tImm(0b00100111), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b00100111, 0b11100010]",
+    "Line:\t\tCL: ROUTE(puts) - S\nInstruction:\tAddr(0b00001001), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00001001, 0b11100011]",
+    "Line:\t\tLD: REG(0) <- INT(36)\nInstruction:\tImm(0b00100100), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b00100100, 0b11100010]",
+    "Line:\t\tCL: ROUTE(puts) - S\nInstruction:\tAddr(0b00001001), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00001001, 0b11100011]",
+    "Line:\t\tLD: REG(0) <- INT(43)\nInstruction:\tImm(0b00101011), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b00101011, 0b11100010]",
+    "Line:\t\tCL: ROUTE(puts) - S\nInstruction:\tAddr(0b00001001), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00001001, 0b11100011]",
+    "Line:\t\tLD: REG(0) <- INT(40)\nInstruction:\tImm(0b00101000), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b00101000, 0b11100010]",
+    "Line:\t\tCL: ROUTE(puts) - S\nInstruction:\tAddr(0b00001001), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00001001, 0b11100011]",
+    "Line:\t\tLD: REG(0) <- INT(55)\nInstruction:\tImm(0b00110111), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b00110111, 0b11100010]",
+    "Line:\t\tCL: ROUTE(puts) - S\nInstruction:\tAddr(0b00001001), AluCtrl(0b111), RegAddr(0b000), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00001001, 0b11100011]",
+    "Line:\t\tRT: PC <- CALLSTACK.pop()\nInstruction:\tAddr(0b00000000), AluCtrl(0b110), RegAddr(0b111), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00000000, 0b11011111]",
+    "Line:\t\tLD: REG(7) <- INT(1)\nInstruction:\tImm(0b00000001), AluCtrl(0b111), RegAddr(0b111), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b00000001, 0b11111110]",
+    "Line:\t\tLD: REG(6) <- MEM(64)\nInstruction:\tImm(0b01000000), AluCtrl(0b000), RegAddr(0b110), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b01000000, 0b00011010]",
+    "Line:\t\tAD: REG(0)\nInstruction:\tImm(0b00000000), AluCtrl(0b001), RegAddr(0b000), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b00000000, 0b00100010]",
+    "Line:\t\tLD: MEM(64) <- REG(0)\nInstruction:\tAddr(0b01000000), AluCtrl(0b000), RegAddr(0b000), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b01000000, 0b00000011]",
+    "Line:\t\tLD: REG(6) <- MEM(65)\nInstruction:\tImm(0b01000001), AluCtrl(0b000), RegAddr(0b110), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b01000001, 0b00011010]",
+    "Line:\t\tAD: REG(0)\nInstruction:\tImm(0b00000000), AluCtrl(0b001), RegAddr(0b000), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b00000000, 0b00100010]",
+    "Line:\t\tLD: MEM(65) <- REG(0)\nInstruction:\tAddr(0b01000001), AluCtrl(0b000), RegAddr(0b000), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b01000001, 0b00000011]",
+    "Line:\t\tLD: REG(1) <- INT(3)\nInstruction:\tImm(0b00000011), AluCtrl(0b111), RegAddr(0b001), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b00000011, 0b11100110]",
+    "Line:\t\tLD: MEM(66) <- REG(1)\nInstruction:\tAddr(0b01000010), AluCtrl(0b000), RegAddr(0b001), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b01000010, 0b00000111]",
+    "Line:\t\tLD: REG(1) <- INT(0)\nInstruction:\tImm(0b00000000), AluCtrl(0b111), RegAddr(0b001), Flags(mem = 0b0, wr = 0b1)\nRaw:\t\t[0b00000000, 0b11100110]",
+    "Line:\t\tLD: MEM(66) <- REG(1)\nInstruction:\tAddr(0b01000010), AluCtrl(0b000), RegAddr(0b001), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b01000010, 0b00000111]",
+    "Line:\t\tRT: PC <- CALLSTACK.pop()\nInstruction:\tAddr(0b00000000), AluCtrl(0b110), RegAddr(0b111), Flags(mem = 0b1, wr = 0b1)\nRaw:\t\t[0b00000000, 0b11011111]"
+  ]
+}
