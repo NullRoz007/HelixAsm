@@ -25,6 +25,12 @@ export const SPECIAL_INST_MAP = {
 }
 
 export class HelixScreen {
+  width: number;
+  height: number;
+  mode: number;
+  x: number;
+  y: number;
+
   constructor(width, height) {
     this.width = width;
     this.height = height;
@@ -36,11 +42,14 @@ export class HelixScreen {
 }
 
 export class InstructionRom {
+  operands: string[];
+  opcodes: string[];
+
   constructor(instructions) {
     this.operands = [];
     this.opcodes = [];
 
-    for(inst of instructions) {
+    for(let inst of instructions) {
       this.operands.push(inst.raw[0]);
       this.operands.push(inst.raw[1]);
     }
@@ -54,6 +63,7 @@ export class Register {
 }
 
 export class HelixCPU {
+  pc: number;
   constructor() {
     this.pc = 0;
   }

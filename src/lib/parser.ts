@@ -71,7 +71,7 @@ export class Instruction {
     this.memFlag    = lo & 0b1;
   }
 
-  build() {
+  build(): string[] {
     let resultLow: number = 0;
 
     resultLow |= (this.aluCtrl << 5);
@@ -89,7 +89,7 @@ export class Instruction {
     return [padBinaryString(8, resultHigh.toString(2)), padBinaryString(8, resultLow.toString(2))];
   }
 
-  toString() {
+  toString():string {
     let raw = this.build(); 
     let result = `Line:\t\t${this.line}\nInstruction:\t`;
     let paddedImm = padBinaryString(8, this.immValue.toString(2));
@@ -217,15 +217,15 @@ export class Parser {
     return inst;
   }
 
-  getLabel(name) {
+  getLabel(name): Label {
     return this.labels.filter((l) => l.name == name)[0];
   }
 
-  getSubroutine(name) {
+  getSubroutine(name): Subroutine {
     return this.subroutines[name];
   }
 
-  getNextToken() {
+  getNextToken(): Token {
     return this.tokens[this.pos];
   }
 

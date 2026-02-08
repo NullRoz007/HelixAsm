@@ -1,8 +1,10 @@
-import { TOKENS, KEYWORDS } from "./asm";
+import { TOKENS, KEYWORDS, CHAR_MAP } from "./asm";
 import { evaluateExpression } from "./expr";
+import { glDrawLine, GLPoint } from "./gl";
 import { Instruction } from "./parser";
 
-const MAX_EXPR_LENGTH = 50;
+const MAX_EXPR_LENGTH = 256;
+const MAX_STRING_LENGTH = 256;
 
 const isInteger = (c) => {
   let x = parseInt(c);
@@ -10,7 +12,7 @@ const isInteger = (c) => {
 }
 
 const isValidMacroChar = (c) => {
-  let alpha = '@abcdefghijklmnopqrstuvwxyz_';
+  let alpha = '@abcdefghijklmnopqrstuvwxyz_:';
   return alpha.indexOf(c.toLowerCase()) != -1;
 }
 
@@ -30,7 +32,7 @@ export class Lexer {
   keywords: string[];
   pos: number;
   expressions: any[]; //setup a proper expressions class?
-  subroutines: Record<string, Instruction[]>;
+  subroutines: Record<string, Token[]>;
   definitions: Record<string, any>;
 
   constructor(source) {
@@ -50,7 +52,7 @@ export class Lexer {
    * Gets a register/memory address from the current position in the source
    * @returns {number}
   */
-  getAddress() {
+  getAddress(): number {
     let result = '';
     while (isInteger(this.peek())) {
       result += this.peek();
@@ -62,7 +64,7 @@ export class Lexer {
   /**
    * Gets a macro (@macro-type) from the current position in the source
    */
-  getMacro() {
+  getMacro(): string {
     let result = '';
     let n = 0;
     
@@ -78,7 +80,76 @@ export class Lexer {
     return result.trim();
   }
 
-  getSubroutine() {
+  getStringFromMacro(macro: string): string {
+    if(macro[0] != '"') throw new Error(`Invalid string in macro: ${macro}`);
+    if(macro.length <= 2) return "";
+    
+    let result = '';
+    let i = 1;
+
+    while(macro[i] != '"') {
+      result += macro[i];
+      i++;
+    }
+
+    return result;
+  }
+
+  stringToTokens(str: string): Token[] {
+    const tokens: Token[] = [];
+
+    for(let c of str) {
+      let i = CHAR_MAP.indexOf(c.toLowerCase());
+      if(i == -1) continue;
+
+      let charCode = (i | 0b00100000); 
+      let charTokens = [
+        new Token('KWD', 'LD'),
+        new Token('REG', 0),
+        new Token('INT', charCode),
+        new Token('KWD', 'LD'),
+        new Token('MEM', 16),
+        new Token('REG', 0)
+      ];
+
+      tokens.push(...charTokens);
+    }
+    
+    return tokens;
+  }
+
+  seperatePointsFromPointString(pointString: string): string[] {
+    return pointString.split(',');
+  }
+
+  pointsFromLineMacro(macro: string): GLPoint[] {
+    let pointStrings: string[] = macro.split(':');
+    if(pointStrings.length != 2) throw Error('Invalid point macro!');
+    
+    let firstPointStr   = pointStrings[0];
+    let secondPointStr  = pointStrings[1];
+
+    if(
+      firstPointStr.split(',').length != 2 || 
+      secondPointStr.split(',').length != 2
+    ) throw Error('Invalid point macro!');
+
+    let p1Parts = firstPointStr.split(',');
+    let p2Parts = secondPointStr.split(',');
+    
+    let x1: number = evaluateExpression(p1Parts[0]);
+    let y1: number = evaluateExpression(p1Parts[1]);
+
+    let x2: number = evaluateExpression(p2Parts[0]);
+    let y2: number = evaluateExpression(p2Parts[1]);
+    
+    let p1: GLPoint = new GLPoint(x1, y1);
+    let p2: GLPoint = new GLPoint(x2, y2);
+
+    return [ p1, p2 ];
+  }
+
+  getSubroutine(): Token[] {
     const computedTokens = [];
 
     while(true) {
@@ -114,7 +185,7 @@ export class Lexer {
     this.pos += n;
   }
 
-  peek() {
+  peek(): string {
     return this.src[this.pos];
   }
 
@@ -128,21 +199,20 @@ export class Lexer {
    * Gets the next available Token from the source
    * @returns {Token}
    */
-  getNextToken() {
+  getNextToken(): Token {
     if (this.tokenInjectionStream.length > 0) {
       return this.tokenInjectionStream.shift();
     }
     
     this.skipWhitespace();
 
-
-    if(this.pos > this.src.length - 1) {                    //EOF
+    if(this.pos > this.src.length - 1) {                    // EOF
       return this.tokens.EOF(null);
     }
 
     const currentChar = this.peek();
 
-    if(isInteger(currentChar)) {                     //INTEGER
+    if(isInteger(currentChar)) {                            //INTEGER
       let result = '';
 
       while(isInteger(this.peek())) {
@@ -179,7 +249,6 @@ export class Lexer {
           this.expressions.push({'expr': macro, 'value': result});
           return this.tokens.INT(result);          
         case 'label': 
-
           return this.tokens.LBL(macro);
         case 'start':
           let subTokens = this.getSubroutine();
@@ -203,6 +272,17 @@ export class Lexer {
 
           this.tokenInjectionStream.unshift(...expanded);
           return null;
+        case 'puts':
+          let str = this.getStringFromMacro(macro);
+          let strTokens = this.stringToTokens(str);
+
+          this.tokenInjectionStream.unshift(...strTokens);
+          return null;
+        case 'line':
+          let initialPoints = this.pointsFromLineMacro(macro);
+          let glTokens = glDrawLine(initialPoints[0], initialPoints[1]);
+          this.tokenInjectionStream.unshift(...glTokens);
+          return null;
         case 'define':
           let { name, tokens } = this.evaluateDefine(macro);
           if(tokens.length != 1) {
@@ -215,7 +295,6 @@ export class Lexer {
         default: 
           throw new Error(`Unknown Macro Type: ${macroType}`);
       }
-
     }
     
     //KEYWORD
@@ -236,7 +315,7 @@ export class Lexer {
     throw new Error(`Unknown Keyword: ${keyword}`);
   }
 
-  tokenize() {
+  tokenize(): Token[] {
     const computedTokens = [];
 
     while(true) {

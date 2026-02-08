@@ -15,7 +15,7 @@ const Z_OFFSET: number = 4;
 const registry: registryLoader.Registry = registryLoader('1.21');
 const Block = blockLoader(registry);
 
-const oprandBitIdxToOffsetVec3 = (iidx: number, bIdx: number) => {
+const oprandBitIdxToOffsetVec3 = (iidx: number, bIdx: number): Vec3 => {
     let x = 1;
     let y = MAX_SCHEM_Y_OFFSET - 2 * bIdx;
     let z = iidx * Z_OFFSET;
@@ -23,7 +23,7 @@ const oprandBitIdxToOffsetVec3 = (iidx: number, bIdx: number) => {
     return new Vec3(x, y, z);
 }
 
-const opcodeBitIdxToOffsetVec3 = (iidx: number, bIdx: number) => {
+const opcodeBitIdxToOffsetVec3 = (iidx: number, bIdx: number): Vec3 => {
     let x = 1;
     let y = MAX_SCHEM_Y_OFFSET - 2 * bIdx;
     let z = iidx * Z_OFFSET + 2;
@@ -41,7 +41,7 @@ export class SchemBuilder {
             'blocksSet': 0
         }
     }
-    async getRom(name: string) {
+    async getRom(name: string): Promise<string> {
         return await JSON.stringify(ROMS[name]);
     }
 
