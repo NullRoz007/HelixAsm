@@ -6,6 +6,9 @@ const isInteger = (c) => {
 };
 
 class ExprLexer {
+  expression: string;
+  pos: number;
+
   constructor(expression) {
     this.expression = expression.replaceAll(' ', '');
     this.pos = 0;

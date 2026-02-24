@@ -5,6 +5,7 @@ import { Instruction } from "./parser";
 
 const MAX_EXPR_LENGTH = 256;
 const MAX_STRING_LENGTH = 256;
+const COMMENT_REGEX = '/\\*[^*]*\\*+(?:[^/*][^*]*\\*+)*/';
 
 const isInteger = (c) => {
   let x = parseInt(c);
@@ -36,7 +37,6 @@ export class Lexer {
   definitions: Record<string, any>;
 
   constructor(source) {
-    this.src = source.trim();
     this.tokenInjectionStream = [];
     this.tokens = {};
     this.keywords = KEYWORDS;
@@ -46,6 +46,15 @@ export class Lexer {
     this.definitions = {};
 
     for(let t of TOKENS) this.tokens[t] = (v) => { return new Token(t, v) }
+    
+    let strippedSrc = source.trim();
+    let matches = strippedSrc.match(COMMENT_REGEX);
+    while(matches) {
+      strippedSrc = strippedSrc.replace(matches[0], '');
+      matches = strippedSrc.match(COMMENT_REGEX);
+    }
+  
+    this.src = strippedSrc.trim();
   }
 
   /**
@@ -211,7 +220,7 @@ export class Lexer {
     }
 
     const currentChar = this.peek();
-
+    
     if(isInteger(currentChar)) {                            //INTEGER
       let result = '';
 
@@ -241,6 +250,7 @@ export class Lexer {
       }
 
       this.skipWhitespace();
+      
       const macro = this.getMacro();
     
       switch (macroType) {

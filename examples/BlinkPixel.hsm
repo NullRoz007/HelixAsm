@@ -1,3 +1,4 @@
+/*prints a character by storing the 0 register in the character buffer*/
 @define CHAR_BUF = #16;
 
 @label reset;
@@ -18,6 +19,7 @@ JP @label loop;
   RT
 @end;
 
+/* print "HELIX" to the screen*/
 @start bootmsg;
   LD :0 39 CL @route puts;
   LD :0 36 CL @route puts;
@@ -27,6 +29,7 @@ JP @label loop;
   RT
 @end;
 
+/*blinks a pixel moving up and right from 0, 0*/
 @start blink;
   LD :7 1
   LD :6 #64
